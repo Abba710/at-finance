@@ -24,6 +24,10 @@
     "web": {
       "bundler": "metro",
       "favicon": "./assets/favicon.png"
+    },
+    "androidNavigationBar": {
+      "visible": true,
+      "backgroundColor": "#1F1F1F"
     }
   }
 }
