@@ -1,24 +1,29 @@
 import React from "react";
 import { View, TouchableOpacity, Image, Text } from "react-native";
-import { userBalance } from "@/component/Financialvar";
+import { useBalanceStore, useModalStore } from "@/component/GlobalStates";
 import ModalInput from "@/component/modalInput";
 
 export default function Home() {
-  function callEdit() {
-    return true;
-  }
+  const { userBalance, setUserBalance } = useBalanceStore();
+  const handleEdit = (name, value, saveFunction) => {
+    useModalStore
+      .getState()
+      .setModalData({ name, value, onSave: saveFunction }); // transmit data
+    useModalStore.getState().setModalVisible(true); // open modal
+  };
 
   return (
     <View className="w-full h-full">
       {/* Balance */}
       <View className="mt-[50px] flex flex-row justify-center items-center">
         <Text className="text-white text-3xl font-bold">
-          Total Balance: {userBalance.value}
+          Total Balance: {userBalance.value} $
         </Text>
-        <Text className="text-white text-3xl font-bold">$</Text>
         <TouchableOpacity
           className="flex justify-center ml-2 items-center"
-          onPress={callEdit}
+          onPress={() => {
+            handleEdit(userBalance.value, userBalance.value, setUserBalance);
+          }}
         >
           <Image
             source={require("@/assets/home/edit.png")}
@@ -51,7 +56,7 @@ export default function Home() {
           78%
         </Text>
       </View>
-      <ModalInput toEdit={userBalance} isopen={false} />
+      <ModalInput />
     </View>
   );
 }
