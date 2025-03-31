@@ -1,30 +1,24 @@
-import React, { useState } from "react";
-import { View, TouchableOpacity, Image, Text, TextInput } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import React from "react";
+import { View, TouchableOpacity, Image, Text } from "react-native";
+import { userBalance } from "@/component/Financialvar";
+import ModalInput from "@/component/modalInput";
 
 export default function Home() {
-  const [Balance, setBalance] = useState(0);
-  function handleClick() {}
+  function callEdit() {
+    return true;
+  }
+
   return (
     <View className="w-full h-full">
       {/* Balance */}
       <View className="mt-[50px] flex flex-row justify-center items-center">
-        <Text className="text-white text-3xl font-bold">Total Balance: </Text>
-        <TextInput
-          value={Balance.toString()}
-          editable={false}
-          onChangeText={(text) => {
-            const cleanedText = text.replace(/[^0-9.]/g, "");
-            const newValue = cleanedText ? parseInt(cleanedText) : 0;
-            setBalance(newValue);
-          }}
-          keyboardType="numeric"
-          className="text-white text-3xl font-bold block"
-        />
+        <Text className="text-white text-3xl font-bold">
+          Total Balance: {userBalance.value}
+        </Text>
         <Text className="text-white text-3xl font-bold">$</Text>
         <TouchableOpacity
           className="flex justify-center ml-2 items-center"
-          onPress={handleClick}
+          onPress={callEdit}
         >
           <Image
             source={require("@/assets/home/edit.png")}
@@ -57,6 +51,7 @@ export default function Home() {
           78%
         </Text>
       </View>
+      <ModalInput toEdit={userBalance} isopen={false} />
     </View>
   );
 }
