@@ -1,28 +1,36 @@
 import React from "react";
 import { View, TouchableOpacity, Image, Text } from "react-native";
-import { useBalanceStore, useModalStore } from "@/component/GlobalStates";
+import { useVariablesStore, useModalStore } from "@/component/GlobalStates";
 import ModalInput from "@/component/modalInput";
+import Celendar from "@/component/Celendar";
 
 export default function Home() {
-  const { userBalance, setUserBalance } = useBalanceStore();
-  const handleEdit = (name, value, saveFunction) => {
-    useModalStore
-      .getState()
-      .setModalData({ name, value, onSave: saveFunction }); // transmit data
-    useModalStore.getState().setModalVisible(true); // open modal
+  const { variables, setVariable } = useVariablesStore();
+  const handleEdit = (name, key, value, saveFunction) => {
+    useModalStore.getState().setModalData({
+      name,
+      value,
+      onSave: (newValue) => saveFunction(key, newValue),
+    });
+    useModalStore.getState().setModalVisible(true);
   };
 
   return (
     <View className="w-full h-full">
       {/* Balance */}
-      <View className="mt-[50px] flex flex-row justify-center items-center">
+      <View className="mt-[50px] ml-[20px] flex flex-row justify-center items-center">
         <Text className="text-white text-3xl font-bold">
-          Total Balance: {userBalance.value} $
+          Balance: {variables.userBalance.value} $
         </Text>
         <TouchableOpacity
-          className="flex justify-center ml-2 items-center"
+          className="flex w-[40px] h-[40px] justify-center items-start ml-2"
           onPress={() => {
-            handleEdit(userBalance.value, userBalance.value, setUserBalance);
+            handleEdit(
+              variables.userBalance.name,
+              "userBalance",
+              variables.userBalance.value,
+              useVariablesStore.getState().setVariable
+            );
           }}
         >
           <Image
@@ -33,27 +41,20 @@ export default function Home() {
       </View>
 
       {/* Date */}
-      <View className="mt-[5px] flex flex-row justify-center items-center">
-        <Text className="text-white text-2xl font-bold ">March 2025</Text>
+      <View className="mt-[5px] w-full flex-nowrap justify-center items-center">
+        <Celendar />
       </View>
 
       {/* Category */}
-      <View className="w-[178px] h-[71.53px] flex flex-row justify-start items-start ml-[20px] mt-[20px]">
-        <View className="w-[178px] h-[71.53px] left-0 top-0 absolute bg-[#343434] rounded-[10px]" />
-
-        <Text className="w-[77px] h-[22.81px] left-[7px] top-[24.88px] absolute text-center text-white text-[16px] font-poppins font-bold leading-[22px]">
-          1.200.00 $
+      <View className="w-full h-[71.53px] flex flex-row justify-between items-center mt-[20px] bg-[#343434] px-4">
+        {/* Название слева */}
+        <Text className="text-white text-[16px] font-poppins font-bold leading-[22px]">
+          {variables.foodCosts.name}
         </Text>
 
-        <Text className="w-[30px] h-[17.62px] left-[7px] top-[5.18px] absolute text-center text-white text-[12px] font-poppins font-bold leading-[22px]">
-          Food
-        </Text>
-
-        <View className="w-[43.21px] h-[44.80px] left-[121px] top-[11.40px] absolute bg-[#808080] rounded-full" />
-        <View className="w-[43.21px] h-[44.80px] left-[121px] top-[11.40px] absolute bg-[#8EE42C] rounded-full" />
-
-        <Text className="w-[29px] h-[22.81px] left-[129px] top-[22.81px] absolute text-center text-white text-[14.40px] font-poppins font-bold leading-[22px]">
-          78%
+        {/* Значение справа */}
+        <Text className="text-white text-[16px] font-poppins font-bold leading-[22px]">
+          {variables.foodCosts.value}$
         </Text>
       </View>
       <ModalInput />

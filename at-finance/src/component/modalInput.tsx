@@ -19,7 +19,9 @@ const ModalInput = () => {
       >
         <View className=" absolute justify-center w-full bottom-0 h-[50%] items-center">
           <View className="bg-white w-full h-[100%] p-4 rounded-lg">
-            <Text className="text-lg font-bold mb-2">Input new value</Text>
+            <Text className="text-lg font-bold mb-2">
+              Input new {modalData?.name} value
+            </Text>
             <TextInput
               className="border border-gray-300 p-2 rounded-lg mb-2"
               placeholder="Enter..."
