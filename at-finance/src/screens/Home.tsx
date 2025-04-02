@@ -6,6 +6,8 @@ import Celendar from "@/component/Celendar";
 
 export default function Home() {
   const { variables, setVariable } = useVariablesStore();
+  console.log(variables);
+  console.log(variables.baseNeeds.expenses);
   const handleEdit = (name, key, value, saveFunction) => {
     useModalStore.getState().setModalData({
       name,
@@ -46,15 +48,34 @@ export default function Home() {
       </View>
 
       {/* Category */}
+      {/* Base needs */}
       <View className="w-full h-[71.53px] flex flex-row justify-between items-center mt-[20px] bg-[#343434] px-4">
-        {/* Название слева */}
-        <Text className="text-white text-[16px] font-poppins font-bold leading-[22px]">
-          {variables.foodCosts.name}
+        <Text className="text-white text-[24px] font-poppins font-bold leading-[50px]">
+          {variables.baseNeeds.name}
         </Text>
 
-        {/* Значение справа */}
         <Text className="text-white text-[16px] font-poppins font-bold leading-[22px]">
-          {variables.foodCosts.value}$
+          {variables.baseNeeds.value}$
+        </Text>
+      </View>
+      {/* Financial goals */}
+      <View className="w-full h-[71.53px] flex flex-row justify-between items-center mt-[20px] bg-[#343434] px-4">
+        <Text className="text-white text-[24px] font-poppins font-bold leading-[50px]">
+          {variables.financialGoals.name}
+        </Text>
+
+        <Text className="text-white text-[16px] font-poppins font-bold leading-[22px]">
+          {variables.financialGoals.value}$
+        </Text>
+      </View>
+      {/* Personal spendigns */}
+      <View className="w-full h-[71.53px] flex flex-row justify-between items-center mt-[20px] bg-[#343434] px-4">
+        <Text className="text-white text-[24px] font-poppins font-bold leading-[50px]">
+          {variables.personalSpending.name}
+        </Text>
+
+        <Text className="text-white text-[16px] font-poppins font-bold leading-[22px]">
+          {variables.personalSpending.value}$
         </Text>
       </View>
       <ModalInput />

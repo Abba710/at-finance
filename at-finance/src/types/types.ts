@@ -4,15 +4,34 @@ interface VariableProps {
   value: number;
 }
 
+export interface ExpensesProps {
+  description: string;
+  value: number;
+}
+
+export interface ExpensesCategoryProps {
+  name: string;
+  value: number;
+  expenses: ExpensesProps[]; // array
+}
+
 export interface VariablesStoreProps {
   variables: {
     userBalance: VariableProps;
-    foodCosts: VariableProps;
+    baseNeeds: ExpensesCategoryProps;
+    financialGoals: ExpensesCategoryProps;
+    personalSpending: ExpensesCategoryProps;
   };
   setVariable: (
     key: keyof VariablesStoreProps["variables"],
     value: number
   ) => Promise<void>;
+
+  addExpense: (
+    category: keyof VariablesStoreProps["variables"],
+    expense: ExpensesProps // Объект расхода
+  ) => Promise<void>;
+
   loadVariables: () => Promise<void>;
 }
 

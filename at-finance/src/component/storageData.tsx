@@ -18,3 +18,4 @@ export const loadData = async (myKey) => {
     return null;
   }
 };
+AsyncStorage.clear();
