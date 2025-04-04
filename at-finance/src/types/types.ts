@@ -29,7 +29,7 @@ export interface VariablesStoreProps {
 
   addExpense: (
     category: keyof VariablesStoreProps["variables"],
-    expense: ExpensesProps // Объект расхода
+    expense: ExpensesProps // Expert object
   ) => Promise<void>;
 
   loadVariables: () => Promise<void>;
@@ -46,4 +46,8 @@ export interface ModalStoreState {
   modalData: ModalData | null;
   setModalVisible: (visible: boolean) => void;
   setModalData: (data: ModalData | null) => void;
+}
+export interface addModalStoreState {
+  addModalVisible: boolean;
+  setAddModalVisible: (visible: boolean) => void;
 }

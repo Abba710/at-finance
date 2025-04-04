@@ -3,6 +3,8 @@ import {
   ModalStoreState,
   VariablesStoreProps,
   ExpensesCategoryProps,
+  addModalStoreState,
+  ExpensesProps,
 } from "@/types/types";
 import { loadData, saveData } from "./storageData";
 
@@ -23,7 +25,7 @@ export const useVariablesStore = create<VariablesStoreProps>((set) => ({
       },
     }));
 
-    // Сохраняем в AsyncStorage
+    // Save in AsyncStorage
     try {
       await saveData(key, JSON.stringify(newValue));
       console.log("saved");
@@ -48,8 +50,8 @@ export const useVariablesStore = create<VariablesStoreProps>((set) => ({
           },
           baseNeeds: {
             ...state.variables.baseNeeds,
-            value: baseNeeds !== null ? JSON.parse(baseNeeds).value : 0, // Обрабатываем только значение
-            expenses: baseNeeds !== null ? JSON.parse(baseNeeds).expenses : [], // Расходы отдельно
+            value: baseNeeds !== null ? JSON.parse(baseNeeds).value : 0,
+            expenses: baseNeeds !== null ? JSON.parse(baseNeeds).expenses : [], // Load all expenses for base needs
           },
           financialGoals: {
             ...state.variables.financialGoals,
@@ -58,7 +60,7 @@ export const useVariablesStore = create<VariablesStoreProps>((set) => ({
             expenses:
               financialGoals !== null
                 ? JSON.parse(financialGoals).expenses
-                : [],
+                : [], // Load all expenses for financial goals
           },
           personalSpending: {
             ...state.variables.personalSpending,
@@ -69,57 +71,81 @@ export const useVariablesStore = create<VariablesStoreProps>((set) => ({
             expenses:
               personalSpending !== null
                 ? JSON.parse(personalSpending).expenses
-                : [],
+                : [], // Load all expenses for personal spending
           },
         },
       }));
-      console.log("loaded");
+
+      console.log("Loaded variables and expenses");
     } catch (error) {
-      console.error("Ошибка загрузки:", error);
+      console.error("Error loading variables:", error);
     }
   },
 
-  // Функция для добавления нового расхода
-  addExpense: async (category, newExpense) => {
+  // Function to add new consumption
+  addExpense: async (category, newExpense: ExpensesProps) => {
+    // Update the Zustand state with new expense data
     set((state) => {
       const categoryData = state.variables[category] as ExpensesCategoryProps;
+
+      // Create an updated category with the new expense
       const updatedCategory = {
         ...categoryData,
-        value: categoryData.value + newExpense.value, // Обновляем сумму категории
-        expenses: [...categoryData.expenses, newExpense], // Добавляем новый расход
+        value: categoryData.value + newExpense.value, // Update the total value for the category
+        expenses: [...categoryData.expenses, newExpense], // Add the new expense to the category's expense list
       };
 
       return {
         variables: {
           ...state.variables,
-          [category]: updatedCategory, // Обновляем категорию
+          [category]: updatedCategory, // Update the specific category in global state
         },
       };
     });
 
     try {
-      const storedCategory = await loadData(category); // Загружаем текущие данные расходов
-      const updatedExpenses = storedCategory ? JSON.parse(storedCategory) : []; // Если данных нет, создаем пустой массив
-      updatedExpenses.push(newExpense); // Добавляем новый расход в массив
+      // Load the current category data from AsyncStorage
+      const storedCategory = await loadData(category);
 
-      // Сохраняем обновленные данные обратно в AsyncStorage
+      // Initialize an empty array for expenses
+      let updatedExpenses: ExpensesProps[] = [];
+
+      if (storedCategory) {
+        // If category data exists in AsyncStorage, add the new expense to the current expenses
+        updatedExpenses = storedCategory.expenses
+          ? [...storedCategory.expenses, newExpense] // Add the new expense to the current expenses array
+          : [newExpense]; // If there were no previous expenses, initialize with the new expense
+      } else {
+        // If no data exists, initialize the expenses array with the new expense
+        updatedExpenses = [newExpense];
+      }
+
+      // Recalculate the total value for the category
+      const newTotal = updatedExpenses.reduce(
+        (acc, curr) => acc + curr.value,
+        0
+      );
+
+      // Save the updated category data (new total and updated expenses) back to AsyncStorage
       await saveData(
         category,
         JSON.stringify({
-          value: updatedExpenses.reduce((acc, curr) => acc + curr.value, 0),
-          expenses: updatedExpenses,
+          value: newTotal, // Updated total value for the category
+          expenses: updatedExpenses, // Updated list of expenses
         })
       );
+
       console.log("Expense added and saved");
     } catch (error) {
-      console.error("Ошибка сохранения расхода:", error);
+      console.error("Error saving expense:", error);
     }
   },
 }));
 
-useVariablesStore
-  .getState()
-  .addExpense("baseNeeds", { description: "Utility bill", value: 150 });
+// how to use addExpense
+//useVariablesStore
+//  .getState()
+//  .addExpense("baseNeeds", { description: "Utility bill", value: 150 });
 
 // load data when app start
 useVariablesStore.getState().loadVariables();
@@ -130,4 +156,9 @@ export const useModalStore = create<ModalStoreState>((set) => ({
   modalData: null,
   setModalVisible: (visible) => set({ modalVisible: visible }),
   setModalData: (data) => set({ modalData: data }),
+}));
+
+export const useAddModalStore = create<addModalStoreState>((set) => ({
+  addModalVisible: false,
+  setAddModalVisible: (visible) => set({ addModalVisible: visible }),
 }));
