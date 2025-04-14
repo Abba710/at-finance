@@ -5,10 +5,11 @@ import {
   ExpensesCategoryProps,
   addModalStoreState,
   ExpensesProps,
+  useResetModalStoreInterface,
 } from "@/types/types";
 import { loadData, saveData } from "./storageData";
 
-// user balance state store
+// Global store for user balance and expense categories
 export const useVariablesStore = create<VariablesStoreProps>((set) => ({
   variables: {
     userBalance: { name: "balance", value: 0 },
@@ -17,6 +18,7 @@ export const useVariablesStore = create<VariablesStoreProps>((set) => ({
     personalSpending: { name: "Personal spending", value: 0, expenses: [] },
   },
 
+  // Update a specific variable (e.g., balance or category value)
   setVariable: async (key, newValue) => {
     set((state) => ({
       variables: {
@@ -25,15 +27,16 @@ export const useVariablesStore = create<VariablesStoreProps>((set) => ({
       },
     }));
 
-    // Save in AsyncStorage
+    // Save updated value to AsyncStorage
     try {
       await saveData(key, JSON.stringify(newValue));
-      console.log("saved");
+      console.log("Saved");
     } catch (error) {
-      console.error("Ошибка сохранения:", error);
+      console.error("Save error:", error);
     }
   },
 
+  // Load all variables and their expenses from AsyncStorage
   loadVariables: async () => {
     try {
       const userBalance = await loadData("userBalance");
@@ -82,75 +85,64 @@ export const useVariablesStore = create<VariablesStoreProps>((set) => ({
     }
   },
 
-  // Function to add new consumption
+  // Add a new expense to a category
   addExpense: async (category, newExpense: ExpensesProps) => {
-    // Update the Zustand state with new expense data
+    // Update the in-memory state (Zustand)
     set((state) => {
       const categoryData = state.variables[category] as ExpensesCategoryProps;
 
-      // Create an updated category with the new expense
       const updatedCategory = {
         ...categoryData,
-        value: categoryData.value + newExpense.value, // Update the total value for the category
-        expenses: [...categoryData.expenses, newExpense], // Add the new expense to the category's expense list
+        value: categoryData.value + newExpense.value,
+        expenses: [...categoryData.expenses, newExpense], // Add the new expense to memory
       };
 
       return {
         variables: {
           ...state.variables,
-          [category]: updatedCategory, // Update the specific category in global state
+          [category]: updatedCategory,
         },
       };
     });
 
     try {
-      // Load the current category data from AsyncStorage
-      const storedCategory = await loadData(category);
+      // Get the updated list of expenses from memory (Zustand)
+      const currentExpenses = (
+        useVariablesStore.getState().variables[
+          category
+        ] as ExpensesCategoryProps
+      ).expenses;
 
-      // Initialize an empty array for expenses
-      let updatedExpenses: ExpensesProps[] = [];
-
-      if (storedCategory) {
-        // If category data exists in AsyncStorage, add the new expense to the current expenses
-        updatedExpenses = storedCategory.expenses
-          ? [...storedCategory.expenses, newExpense] // Add the new expense to the current expenses array
-          : [newExpense]; // If there were no previous expenses, initialize with the new expense
-      } else {
-        // If no data exists, initialize the expenses array with the new expense
-        updatedExpenses = [newExpense];
-      }
-
-      // Recalculate the total value for the category
-      const newTotal = updatedExpenses.reduce(
+      const newTotal = currentExpenses.reduce(
         (acc, curr) => acc + curr.value,
         0
       );
 
-      // Save the updated category data (new total and updated expenses) back to AsyncStorage
+      // Save the full list of expenses back to AsyncStorage
       await saveData(
         category,
         JSON.stringify({
-          value: newTotal, // Updated total value for the category
-          expenses: updatedExpenses, // Updated list of expenses
+          value: newTotal,
+          expenses: currentExpenses,
         })
       );
 
-      console.log("Expense added and saved");
+      console.log("✅ All expenses successfully saved to AsyncStorage!");
     } catch (error) {
-      console.error("Error saving expense:", error);
+      console.error("❌ Error while saving:", error);
     }
   },
 }));
 
-// how to use addExpense
-//useVariablesStore
-//  .getState()
-//  .addExpense("baseNeeds", { description: "Utility bill", value: 150 });
+// Example usage of addExpense:
+// useVariablesStore
+//   .getState()
+//   .addExpense("baseNeeds", { description: "Utility bill", value: 150 });
 
-// load data when app start
+// Load variables and expenses when the app starts
 useVariablesStore.getState().loadVariables();
 
-// Modal state store
+// Store for controlling modal visibility and data
 export const useModalStore = create<ModalStoreState>((set) => ({
   modalVisible: false,
   modalData: null,
@@ -158,7 +150,16 @@ export const useModalStore = create<ModalStoreState>((set) => ({
   setModalData: (data) => set({ modalData: data }),
 }));
 
+// Store for controlling visibility of the "add" modal
 export const useAddModalStore = create<addModalStoreState>((set) => ({
   addModalVisible: false,
   setAddModalVisible: (visible) => set({ addModalVisible: visible }),
 }));
+
+export const useResetModalStore = create<useResetModalStoreInterface>(
+  (set) => ({
+    addResetModalVisible: false,
+    setAddResetModalVisible: (visible) =>
+      set({ addResetModalVisible: visible }),
+  })
+);

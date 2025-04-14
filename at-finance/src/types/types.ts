@@ -51,3 +51,8 @@ export interface addModalStoreState {
   addModalVisible: boolean;
   setAddModalVisible: (visible: boolean) => void;
 }
+
+export interface useResetModalStoreInterface {
+  addResetModalVisible: boolean;
+  setAddResetModalVisible: (visible: boolean) => void;
+}

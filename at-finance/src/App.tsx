@@ -1,8 +1,8 @@
-import { StatusBar } from 'expo-status-bar'
-import { View } from 'react-native'
-import '../global.css'
-import Navmenu from '@/component/Navigation'
-import Home from './screens/Home'
+import { StatusBar } from "expo-status-bar";
+import { View } from "react-native";
+import "../global.css";
+import Navmenu from "@/component/Navigation";
+import Home from "./screens/Home";
 
 export default function App() {
   return (
@@ -11,5 +11,5 @@ export default function App() {
       <Home></Home>
       <Navmenu />
     </View>
-  )
+  );
 }

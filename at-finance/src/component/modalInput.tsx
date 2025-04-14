@@ -29,7 +29,7 @@ const ModalInput = () => {
               onChangeText={(text) => setInInputValue(parseInt(text))}
             />
             <TouchableOpacity
-              className="bg-blue-500 p-2 rounded-lg"
+              className="bg-[#343434] p-3 mt-6 rounded-lg"
               onPress={() => {
                 if (modalData?.onSave) {
                   modalData.onSave(inputValue); // call save function

@@ -7,10 +7,15 @@ import {
   ScrollView,
   StyleSheet,
 } from "react-native";
-import { useVariablesStore, useModalStore } from "@/component/GlobalStates";
+import {
+  useVariablesStore,
+  useModalStore,
+  useResetModalStore,
+} from "@/component/GlobalStates";
 import ModalInput from "@/component/modalInput";
 import AddModal from "@/component/addmodal";
 import Celendar from "@/component/Celendar";
+import ResetButton from "@/component/Resetbutton";
 
 export default function Home() {
   const { variables, setVariable } = useVariablesStore();
@@ -84,8 +89,21 @@ export default function Home() {
       </View>
 
       {/* Date */}
-      <View className="mt-[5px] w-full flex-nowrap justify-center items-center">
-        <Celendar />
+      <View className="mt-[5px] w-full flex-row justify-center items-center">
+        <View className="flex-row items-center">
+          <Celendar />
+          <TouchableOpacity
+            className="w-[40px] h-[40px] justify-center items-center ml-2"
+            onPress={() => {
+              useResetModalStore.getState().setAddResetModalVisible(true);
+            }}
+          >
+            <Image
+              source={require("@/assets/navmenu/Refresh.png")}
+              className="w-[20px] h-[20px]"
+            />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Category - Base needs */}
@@ -137,6 +155,7 @@ export default function Home() {
 
       <ModalInput />
       <AddModal />
+      <ResetButton />
     </View>
   );
 }
