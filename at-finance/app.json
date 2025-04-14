@@ -4,11 +4,11 @@
     "slug": "at-finance",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./assets/Vector.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./assets/Vector.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -17,9 +17,10 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./assets/Vector_big.png",
         "backgroundColor": "#ffffff"
-      }
+      },
+      "package": "com.atfinance"
     },
     "web": {
       "bundler": "metro",
@@ -28,6 +29,11 @@
     "androidNavigationBar": {
       "visible": true,
       "backgroundColor": "#1F1F1F"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "9a8d6e12-327c-470d-af82-abf44ac8e718"
+      }
     }
   }
 }
