@@ -56,3 +56,13 @@ export interface useResetModalStoreInterface {
   addResetModalVisible: boolean;
   setAddResetModalVisible: (visible: boolean) => void;
 }
+
+export interface Currency {
+  symbol: string;
+  name: string;
+}
+
+export interface CurrencyStoreInterface {
+  selectedCurrency: Currency;
+  setSelectedCurrency: (currency: Currency) => Promise<void>;
+}

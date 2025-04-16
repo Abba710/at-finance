@@ -7,7 +7,11 @@ import {
   Modal,
   Alert,
 } from "react-native";
-import { useAddModalStore, useVariablesStore } from "./GlobalStates";
+import {
+  useAddModalStore,
+  useVariablesStore,
+  useCurrencyStore,
+} from "./GlobalStates";
 
 type Category =
   | "personalSpending"
@@ -18,6 +22,7 @@ type Category =
 const AddModal = () => {
   const { addModalVisible, setAddModalVisible } = useAddModalStore();
   const { variables, setVariable } = useVariablesStore();
+  const { selectedCurrency } = useCurrencyStore();
 
   const [inputAmauntValue, setInInputAmauntValue] = useState<number | null>(
     null
@@ -58,75 +63,83 @@ const AddModal = () => {
     });
     const newBalance = variables.userBalance.value - inputAmauntValue;
     setVariable("userBalance", newBalance);
-    handleClose(); // close
+    handleClose();
   };
 
   return (
-    <View className="flex-1">
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={addModalVisible}
-        onRequestClose={handleClose}
-      >
-        <View className="absolute justify-center w-full bottom-0 h-[55%] items-center">
-          <View className="bg-white w-full h-full p-4 rounded-lg">
-            <Text className="text-lg font-bold mb-2 mt-2">
-              Enter the amount
-            </Text>
-            <TextInput
-              className="border border-gray-300 p-2 rounded-lg mb-2"
-              placeholder="Enter..."
-              keyboardType="numeric"
-              value={inputAmauntValue?.toString() || ""}
-              onChangeText={(text) =>
-                setInInputAmauntValue(parseInt(text) || null)
-              }
-            />
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={addModalVisible}
+      onRequestClose={handleClose}
+    >
+      <View className="flex-1 bg-black/60 justify-end">
+        <View className="bg-bg-primary rounded-t-2xl p-6">
+          <Text className="text-text-primary text-xl font-semibold mb-4">
+            Add New Transaction
+          </Text>
 
-            <Text className="text-lg font-bold mb-2 mt-2">
-              Enter the description
-            </Text>
-            <TextInput
-              className="border border-gray-300 p-2 rounded-lg mb-2"
-              placeholder="Enter..."
-              value={inputDescriptionValue}
-              onChangeText={setInputDescriptionValue}
-            />
+          <Text className="text-text-secondary font-medium mb-2">
+            Amount ({selectedCurrency.symbol})
+          </Text>
+          <TextInput
+            className="bg-bg-input text-text-primary px-4 py-3 rounded-xl mb-4 border border-text-secondary/20"
+            placeholder={`Enter amount in ${selectedCurrency.name}...`}
+            placeholderTextColor="#9CA3AF"
+            keyboardType="numeric"
+            value={inputAmauntValue?.toString() || ""}
+            onChangeText={(text) =>
+              setInInputAmauntValue(parseInt(text) || null)
+            }
+          />
 
-            <View className="w-full">
-              <Text className="text-lg font-bold mb-2">Choose category</Text>
-              <View className="flex-row flex-wrap gap-2">
-                {["baseNeeds", "financialGoals", "personalSpending"].map(
-                  (cat) => (
-                    <TouchableOpacity
-                      key={cat}
-                      className={`px-4 py-2 rounded-lg bg-[#343434] ${
-                        chosedCategory === cat
-                          ? "border-2 border-blue-500"
-                          : "border-0"
-                      }`}
-                      onPress={() => setCategory(cat as Category)}
-                    >
-                      <Text className="text-white text-base">
-                        {variables[cat as Category].name}
-                      </Text>
-                    </TouchableOpacity>
-                  )
-                )}
-              </View>
-            </View>
+          <Text className="text-text-secondary font-medium mb-2">
+            Description
+          </Text>
+          <TextInput
+            className="bg-bg-input text-text-primary px-4 py-3 rounded-xl mb-4 border border-text-secondary/20"
+            placeholder="Enter description..."
+            placeholderTextColor="#9CA3AF"
+            value={inputDescriptionValue}
+            onChangeText={setInputDescriptionValue}
+          />
 
-            <TouchableOpacity
-              className="bg-[#343434] p-3 mt-6 rounded-lg"
-              onPress={handleAdd}
-            >
-              <Text className="text-white text-center text-base">Add</Text>
-            </TouchableOpacity>
+          <Text className="text-text-secondary font-medium mb-2">Category</Text>
+          <View className="flex-row flex-wrap gap-2 mb-6">
+            {["baseNeeds", "financialGoals", "personalSpending"].map((cat) => (
+              <TouchableOpacity
+                key={cat}
+                className={`px-4 py-2 rounded-xl ${
+                  chosedCategory === cat
+                    ? "bg-accent"
+                    : "bg-bg-input border border-text-secondary/20"
+                }`}
+                onPress={() => setCategory(cat as Category)}
+              >
+                <Text
+                  className={`text-base ${
+                    chosedCategory === cat
+                      ? "text-text-primary"
+                      : "text-text-secondary"
+                  }`}
+                >
+                  {variables[cat as Category].name}
+                </Text>
+              </TouchableOpacity>
+            ))}
           </View>
+
+          <TouchableOpacity
+            className="bg-accent p-4 rounded-xl shadow-lg"
+            onPress={handleAdd}
+          >
+            <Text className="text-text-primary text-center text-base font-semibold">
+              Add Transaction
+            </Text>
+          </TouchableOpacity>
         </View>
-      </Modal>
-    </View>
+      </View>
+    </Modal>
   );
 };
 

@@ -6,8 +6,18 @@ import {
   addModalStoreState,
   ExpensesProps,
   useResetModalStoreInterface,
+  CurrencyStoreInterface,
+  Currency,
 } from "@/types/types";
 import { loadData, saveData } from "./storageData";
+
+export const currencies: Currency[] = [
+  { symbol: "$", name: "Dollar" },
+  { symbol: "€", name: "Euro" },
+  { symbol: "₸", name: "Tenge" },
+  { symbol: "₽", name: "Ruble" },
+  { symbol: "¥", name: "Yuan" },
+];
 
 // Global store for user balance and expense categories
 export const useVariablesStore = create<VariablesStoreProps>((set) => ({
@@ -163,3 +173,22 @@ export const useResetModalStore = create<useResetModalStoreInterface>(
       set({ addResetModalVisible: visible }),
   })
 );
+
+export const useCurrencyStore = create<CurrencyStoreInterface>((set) => ({
+  selectedCurrency: currencies[0],
+  setSelectedCurrency: async (currency) => {
+    set({ selectedCurrency: currency });
+    try {
+      await saveData("selectedCurrency", JSON.stringify(currency));
+    } catch (error) {
+      console.error("Error saving currency:", error);
+    }
+  },
+}));
+
+// Load currency when app starts
+loadData("selectedCurrency").then((savedCurrency) => {
+  if (savedCurrency) {
+    useCurrencyStore.getState().setSelectedCurrency(JSON.parse(savedCurrency));
+  }
+});

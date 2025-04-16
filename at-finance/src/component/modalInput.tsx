@@ -1,49 +1,53 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, Modal } from "react-native";
-import { useModalStore } from "@/component/GlobalStates";
+import { useModalStore, useCurrencyStore } from "@/component/GlobalStates";
 
 const ModalInput = () => {
   const { modalVisible, modalData, setModalVisible, setModalData } =
     useModalStore();
+  const { selectedCurrency } = useCurrencyStore();
   const [inputValue, setInInputValue] = useState(0);
 
   return (
-    <View className="flex-1">
-      <Modal
-        animationType="slide"
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => {
-          setModalVisible(!modalVisible);
-        }}
-      >
-        <View className=" absolute justify-center w-full bottom-0 h-[50%] items-center">
-          <View className="bg-white w-full h-[100%] p-4 rounded-lg">
-            <Text className="text-lg font-bold mb-2">
-              Input new {modalData?.name} value
+    <Modal
+      animationType="slide"
+      transparent={true}
+      visible={modalVisible}
+      onRequestClose={() => {
+        setModalVisible(!modalVisible);
+      }}
+    >
+      <View className="flex-1 bg-black/60 justify-end">
+        <View className="bg-bg-primary rounded-t-2xl p-6">
+          <Text className="text-text-primary text-xl font-semibold mb-4">
+            Update {modalData?.name}
+          </Text>
+
+          <TextInput
+            className="bg-bg-input text-text-primary px-4 py-3 rounded-xl mb-6 border border-text-secondary/20"
+            placeholder={`Enter new value in ${selectedCurrency.name}...`}
+            placeholderTextColor="#9CA3AF"
+            keyboardType="numeric"
+            onChangeText={(text) => setInInputValue(parseInt(text) || 0)}
+          />
+
+          <TouchableOpacity
+            className="bg-accent p-4 rounded-xl shadow-lg"
+            onPress={() => {
+              if (modalData?.onSave) {
+                modalData.onSave(inputValue);
+              }
+              setModalVisible(!modalVisible);
+              setModalData(null);
+            }}
+          >
+            <Text className="text-text-primary text-center text-base font-semibold">
+              Save Changes
             </Text>
-            <TextInput
-              className="border border-gray-300 p-2 rounded-lg mb-2"
-              placeholder="Enter..."
-              keyboardType="numeric"
-              onChangeText={(text) => setInInputValue(parseInt(text))}
-            />
-            <TouchableOpacity
-              className="bg-[#343434] p-3 mt-6 rounded-lg"
-              onPress={() => {
-                if (modalData?.onSave) {
-                  modalData.onSave(inputValue); // call save function
-                }
-                setModalVisible(!modalVisible);
-                setModalData(null);
-              }}
-            >
-              <Text className="text-white text-center">Submit</Text>
-            </TouchableOpacity>
-          </View>
+          </TouchableOpacity>
         </View>
-      </Modal>
-    </View>
+      </View>
+    </Modal>
   );
 };
 

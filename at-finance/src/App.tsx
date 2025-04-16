@@ -6,9 +6,9 @@ import Home from "./screens/Home";
 
 export default function App() {
   return (
-    <View className="bg-[[#1F1F1F]] w-full h-full">
+    <View className="flex-1 bg-bg-primary">
       <StatusBar style="light" />
-      <Home></Home>
+      <Home />
       <Navmenu />
     </View>
   );

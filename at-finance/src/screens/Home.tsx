@@ -1,28 +1,20 @@
 import React, { useState } from "react";
-import {
-  View,
-  TouchableOpacity,
-  Image,
-  Text,
-  ScrollView,
-  StyleSheet,
-} from "react-native";
+import { View, TouchableOpacity, Image, Text, ScrollView } from "react-native";
 import {
   useVariablesStore,
   useModalStore,
   useResetModalStore,
+  useCurrencyStore,
 } from "@/component/GlobalStates";
 import ModalInput from "@/component/modalInput";
 import AddModal from "@/component/addmodal";
 import Celendar from "@/component/Celendar";
 import ResetButton from "@/component/Resetbutton";
+import { CurrencySelector } from "@/component/CurrencySelector";
 
 export default function Home() {
-  const { variables, setVariable } = useVariablesStore();
-  console.log(variables);
-  console.log(variables.baseNeeds.expenses);
-
-  // State to track which category is expanded
+  const { variables } = useVariablesStore();
+  const { selectedCurrency } = useCurrencyStore();
   const [expandedCategory, setExpandedCategory] = useState(null);
 
   const handleEdit = (name, key, value, saveFunction) => {
@@ -35,27 +27,26 @@ export default function Home() {
   };
 
   const toggleCategory = (categoryName) => {
-    // Toggle the expanded state for the clicked category
     setExpandedCategory((prev) =>
       prev === categoryName ? null : categoryName
     );
   };
 
-  // Helper to limit expenses to a max of 5 items and show a scroll if more
   const renderExpenses = (category) => {
     const expenses = variables[category].expenses;
     return (
-      <ScrollView style={styles.expenseList}>
+      <ScrollView className="max-h-[200] mt-2">
         {expenses.map((expense, index) => (
           <View
             key={index}
-            className="flex flex-row justify-between items-center mt-[10px] px-2 border-t-2 border-b-2 border-white"
+            className="flex-row justify-between items-center mt-2 p-4 bg-bg-input rounded-xl border border-text-secondary/20"
           >
-            <Text className="text-white border-l-2 border-r-2 border-white text-[16px]">
+            <Text className="text-text-primary text-base">
               {expense.description}
             </Text>
-            <Text className="text-white text-[16px] border-l-2 border-r-2 border-white">
-              {expense.value}$
+            <Text className="text-text-secondary text-base">
+              {expense.value}
+              {selectedCurrency.symbol}
             </Text>
           </View>
         ))}
@@ -64,94 +55,82 @@ export default function Home() {
   };
 
   return (
-    <View className="w-full h-full">
-      {/* Balance */}
-      <View className="mt-[50px] ml-[20px] flex flex-row justify-center items-center">
-        <Text className="text-white text-3xl font-bold">
-          Balance: {variables.userBalance.value} $
-        </Text>
-        <TouchableOpacity
-          className="flex w-[40px] h-[40px] justify-center items-start ml-2"
-          onPress={() => {
-            handleEdit(
-              variables.userBalance.name,
-              "userBalance",
-              variables.userBalance.value,
-              useVariablesStore.getState().setVariable
-            );
-          }}
-        >
-          <Image
-            source={require("@/assets/home/edit.png")}
-            className="w-[20px] h-[20px]"
-          ></Image>
-        </TouchableOpacity>
+    <View className="w-full h-full px-6">
+      {/* Balance Card */}
+      <View className="mt-14">
+        <View className="bg-bg-secondary rounded-2xl p-6 shadow-lg">
+          <Text className="text-text-secondary text-base font-medium mb-2">
+            Your Balance
+          </Text>
+          <View className="flex-row items-center justify-between">
+            <Text className="text-text-primary text-4xl font-bold">
+              {variables.userBalance.value}
+              {selectedCurrency.symbol}
+            </Text>
+            <View className="flex-row items-center gap-2">
+              <TouchableOpacity
+                className="h-10 px-4 bg-bg-input rounded-xl flex-row items-center justify-center border border-text-secondary/10"
+                onPress={() => {
+                  handleEdit(
+                    variables.userBalance.name,
+                    "userBalance",
+                    variables.userBalance.value,
+                    useVariablesStore.getState().setVariable
+                  );
+                }}
+              >
+                <Image
+                  source={require("@/assets/home/edit.png")}
+                  className="w-4 h-4 opacity-80 mr-2"
+                />
+                <Text className="text-text-secondary text-base font-medium">
+                  Edit
+                </Text>
+              </TouchableOpacity>
+              <CurrencySelector />
+            </View>
+          </View>
+        </View>
       </View>
 
       {/* Date */}
-      <View className="mt-[5px] w-full flex-row justify-center items-center">
-        <View className="flex-row items-center">
+      <View className="mt-6 w-full flex-row justify-center items-center">
+        <View className="flex-row items-center bg-bg-secondary p-4 rounded-xl">
           <Celendar />
           <TouchableOpacity
-            className="w-[40px] h-[40px] justify-center items-center ml-2"
+            className="w-10 h-10 justify-center items-center ml-2 bg-bg-input rounded-xl"
             onPress={() => {
               useResetModalStore.getState().setAddResetModalVisible(true);
             }}
           >
             <Image
               source={require("@/assets/navmenu/Refresh.png")}
-              className="w-[20px] h-[20px]"
+              className="w-5 h-5 opacity-80"
             />
           </TouchableOpacity>
         </View>
       </View>
 
-      {/* Category - Base needs */}
-      <TouchableOpacity onPress={() => toggleCategory("baseNeeds")}>
-        <View className="w-full h-[71.53px] flex flex-row justify-between items-center mt-[20px] bg-[#343434] px-4">
-          <Text className="text-white text-[24px] font-poppins font-bold leading-[50px]">
-            {variables.baseNeeds.name}
-          </Text>
-          <Text className="text-white text-[16px] font-poppins font-bold leading-[22px]">
-            {variables.baseNeeds.value}$
-          </Text>
+      {/* Categories */}
+      {["baseNeeds", "financialGoals", "personalSpending"].map((category) => (
+        <View key={category} className="mt-6">
+          <TouchableOpacity onPress={() => toggleCategory(category)}>
+            <View className="bg-bg-secondary rounded-xl p-6 shadow-lg">
+              <View className="flex-row justify-between items-center">
+                <Text className="text-text-primary text-xl font-semibold">
+                  {variables[category].name}
+                </Text>
+                <Text className="text-text-secondary text-lg">
+                  {variables[category].value}
+                  {selectedCurrency.symbol}
+                </Text>
+              </View>
+            </View>
+          </TouchableOpacity>
+
+          {expandedCategory === category && renderExpenses(category)}
         </View>
-      </TouchableOpacity>
-
-      {/* If category is expanded, show the expenses */}
-      {expandedCategory === "baseNeeds" && renderExpenses("baseNeeds")}
-
-      {/* Category - Financial goals */}
-      <TouchableOpacity onPress={() => toggleCategory("financialGoals")}>
-        <View className="w-full h-[71.53px] flex flex-row justify-between items-center mt-[20px] bg-[#343434] px-4">
-          <Text className="text-white text-[24px] font-poppins font-bold leading-[50px]">
-            {variables.financialGoals.name}
-          </Text>
-          <Text className="text-white text-[16px] font-poppins font-bold leading-[22px]">
-            {variables.financialGoals.value}$
-          </Text>
-        </View>
-      </TouchableOpacity>
-
-      {/* If category is expanded, show the expenses */}
-      {expandedCategory === "financialGoals" &&
-        renderExpenses("financialGoals")}
-
-      {/* Category - Personal spending */}
-      <TouchableOpacity onPress={() => toggleCategory("personalSpending")}>
-        <View className="w-full h-[71.53px] flex flex-row justify-between items-center mt-[20px] bg-[#343434] px-4">
-          <Text className="text-white text-[24px] font-poppins font-bold leading-[50px]">
-            {variables.personalSpending.name}
-          </Text>
-          <Text className="text-white text-[16px] font-poppins font-bold leading-[22px]">
-            {variables.personalSpending.value}$
-          </Text>
-        </View>
-      </TouchableOpacity>
-
-      {/* If category is expanded, show the expenses */}
-      {expandedCategory === "personalSpending" &&
-        renderExpenses("personalSpending")}
+      ))}
 
       <ModalInput />
       <AddModal />
@@ -159,10 +138,3 @@ export default function Home() {
     </View>
   );
 }
-
-// Styles for expense list and scroll
-const styles = StyleSheet.create({
-  expenseList: {
-    maxHeight: 160, // Set a max height for the list
-  },
-});
